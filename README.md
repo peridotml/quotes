@@ -8,6 +8,8 @@ The Quote Finder project is organized into three primary directories, each servi
 - **frontend/** Contains the Vite-React application, implementing the user interface and interaction layer.
 - **python/** Houses data and model preparation scripts, including a notable Jupyter Notebook for embedding quotes and integration with Pinecone.
 - **src/** The Rust backend, built with Axum to provide RESTful services, including the front-end serving and quote searching functionality.
+- [peridotml/candle](https://github.com/huggingface/candle/commit/3d3ef235777b6d7ff5c9cc68f8f23ea1197de7b9) A fork of Hugging Face's candle library with some extra code that I wrote to implement a SPLADE model.
+
 
 ## Tech Stack
 - **Backend** [Axum](https://github.com/tokio-rs/axum), [Pinecone](https://www.pinecone.io/)
