@@ -32,22 +32,17 @@ impl SpladeService {
         let config = std::fs::read_to_string(config_path).unwrap();
         let config: Config = serde_json::from_str(&config).unwrap();
         let tokenizer_filename = Path::new(tokenizer_path);
-        let tokenizer = Tokenizer::from_file(tokenizer_filename).map_err(E::msg).unwrap();
- 
+        let tokenizer = Tokenizer::from_file(tokenizer_filename).unwrap();
 
         let model = SpladeModel::load(vb, &config).unwrap();
 
         Ok(SpladeService { model, tokenizer })
     }
 
-    pub fn sparsify(&mut self, text: String, filter: Option<f32>) -> Result<SearchOutput, E> {
+    pub fn sparsify(&self, text: String, filter: Option<f32>) -> Result<SearchOutput, E> {
         // Tokenize input text
-        let tokenizer = self.tokenizer
-        .with_padding(None)
-        .with_truncation(None)
-        .map_err(E::msg).unwrap();
 
-        let tokens = tokenizer
+        let tokens = self.tokenizer
             .encode(text, true)
             .map_err(E::msg).unwrap()
             .get_ids()

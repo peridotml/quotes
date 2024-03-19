@@ -1,7 +1,9 @@
+use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::routing::post;
 use axum::{Json, Router};
 use std::collections::HashMap;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use tower_http::services::{ServeDir, ServeFile};
@@ -28,13 +30,7 @@ struct CreateQuery {
     top_k: Option<i64>
 }
 
-async fn query(Json(payload): Json<CreateQuery>) -> impl IntoResponse {
-    let mut splade_manager = SpladeService::new(
-        "src/model.safetensors",
-        "src/config.json",
-        "src/tokenizer.json",
-    ).unwrap();
-
+async fn query(splade_manager: State<Arc<SpladeService>>, Json(payload): Json<CreateQuery>) -> impl IntoResponse {
     let output = splade_manager
         .sparsify(payload.text, payload.filter)
         .unwrap();
@@ -58,8 +54,13 @@ async fn main(
 
     std::env::set_var("PINECONE_API_KEY", pinecone_api_key);
     std::env::set_var("PINECONE_HOST", pinecone_host);
+    let splade_manager = Arc::new(SpladeService::new(
+        "src/model.safetensors",
+        "src/config.json",
+        "src/tokenizer.json",
+    ).unwrap());
 
-    let router = Router::new().route("/query", post(query)).nest_service(
+    let router = Router::new().route("/query", post(query)).with_state(splade_manager).nest_service(
         "/", ServeDir::new("dist").not_found_service(ServeFile::new("dist/index.html")),
     );
     
